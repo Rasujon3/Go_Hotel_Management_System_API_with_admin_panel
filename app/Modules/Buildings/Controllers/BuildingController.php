@@ -36,7 +36,6 @@ class BuildingController extends AppBaseController
     // Store data
     public function store(BuildingRequest $request)
     {
-        return $this->sendResponse($request->all(), 'Data created successfully!');
         $user = getUser();
         $userHotelIds = getUserHotelIds($user?->id, $user?->user_type_id);
         $name = $request->name;

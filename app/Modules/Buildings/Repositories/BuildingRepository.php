@@ -16,7 +16,6 @@ class BuildingRepository
 {
     public function all($hotelId)
     {
-//        return $hotelId;
         $data = Building::with('images')
             ->where('hotel_id', $hotelId)
             ->get();
