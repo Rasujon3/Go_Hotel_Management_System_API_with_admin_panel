@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use Blade;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
+use Blade;
 use Session;
 
 class AppServiceProvider extends ServiceProvider

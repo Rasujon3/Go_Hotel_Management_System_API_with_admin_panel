@@ -8,14 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AllowMultipleRoles
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!auth()->check()) {
+        // Sanctum-compatible authentication check
+        $user = $request->user(); // VERY IMPORTANT
+
+        if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthenticated. Please login first.',
@@ -23,19 +21,21 @@ class AllowMultipleRoles
             ], 401);
         }
 
-        $userRole = auth()->user()->role;
+        // Get the user role from database
+        $userRole = $user->role; // keep your existing column
 
+        // Role check
         if (in_array($userRole, $roles)) {
             return $next($request);
         }
 
+        // Error messages
         $messages = [
             'owner' => 'This feature is only available for hotel owners.',
             'receptionist' => 'This feature is only available for receptionists.',
             'user' => 'This feature is only available for customers.',
         ];
 
-        // Get specific message or generic one
         if (count($roles) === 1 && isset($messages[$roles[0]])) {
             $message = $messages[$roles[0]];
         } else {

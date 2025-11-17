@@ -33,8 +33,9 @@ Route::get('/clear-cache', function () {
     Artisan::call('config:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
+    Artisan::call('optimize:clear');
 
-    return 'All caches (config, route, view, application) have been cleared!';
+    return 'All caches (config, route, view, optimize, application) have been cleared!';
 });
 
 Route::group(['middleware' => ['prevent-back-history', 'admin_auth']], function () {
