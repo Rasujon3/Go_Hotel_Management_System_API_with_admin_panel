@@ -5,6 +5,7 @@
 /vendor
 .env
 .env.backup
+.env.shipbob
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json
@@ -13,3 +14,4 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+.env.shipbob
