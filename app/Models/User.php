@@ -64,11 +64,6 @@ class User extends Authenticatable
             $this->attributes['withdraw_password'] = bcrypt($value);
         }
     }
-    public function getAuthIdentifierName()
-    {
-        return 'username';
-    }
-
     public function frozenAmount()
     {
         return $this->hasOne(FrozenAmount::class);
