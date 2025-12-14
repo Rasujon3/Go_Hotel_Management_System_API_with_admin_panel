@@ -3,34 +3,55 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Schema;
-use Blade;
-use Session;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function register()
+    /**
+     * Register any application services.
+     */
+    public function register(): void
     {
         //
     }
 
-    public function boot()
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
     {
-        // Laravel 9 defaults
-        Paginator::useBootstrap();
+        /**
+         * ==========================================
+         * Basic Laravel configurations
+         * ==========================================
+         */
         Schema::defaultStringLength(191);
+        Paginator::useBootstrap();
 
-        Blade::directive('toastr', function ($expression){
+        /**
+         * ==========================================
+         * Toastr Blade Directive
+         * ==========================================
+         */
+        Blade::directive('toastr', function ($expression) {
             return "<script>
                     toastr.{{ Session::get('alert-type') }}($expression)
                  </script>";
         });
 
-        // === Module Auto Loader (From Laravel 11 Project) ===
+        /**
+         * ==========================================
+         * Load Modular Architecture (Web + API)
+         * ==========================================
+         * NOTE:
+         * - Do NOT load routes/api.php manually
+         * - Laravel RouteServiceProvider already handles it
+         */
 
         $modulesPath = base_path('app/Modules');
 
@@ -38,54 +59,50 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        $modules = collect(File::directories($modulesPath))
-            ->mapWithKeys(function ($path) {
-                $moduleName = ucfirst(basename($path));
-                return [$moduleName => $path];
-            });
+        $modules = File::directories($modulesPath);
 
-        foreach ($modules as $module => $modulePath) {
-            $this->registerModule($module, $modulePath);
-        }
-
-        // Load Default API routes
-        if (File::exists(base_path('routes/api.php'))) {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+        foreach ($modules as $modulePath) {
+            $this->registerModule($modulePath);
         }
     }
 
-    private function registerModule(string $module, string $modulePath): void
+    /**
+     * Register a single module
+     */
+    private function registerModule(string $modulePath): void
     {
-        $routesPath = "{$modulePath}/Routes";
-        $viewsPath = "{$modulePath}/Resources/views";
-        $migrationsPath = "{$modulePath}/Database/Migrations";
+        $routesPath     = $modulePath . '/Routes';
+        $viewsPath      = $modulePath . '/Resources/views';
 
-        // Load Web Routes
-        if (File::exists("{$routesPath}/web.php")) {
+        /**
+         * ------------------------------------------
+         * Load WEB Routes (Session + Auth Enabled)
+         * ------------------------------------------
+         */
+        if (File::exists($routesPath . '/web.php')) {
             Route::middleware('web')
-                ->group("{$routesPath}/web.php");
+                ->group($routesPath . '/web.php');
         }
 
-        // Load API Routes
-        if (File::exists("{$routesPath}/api.php")) {
+        /**
+         * ------------------------------------------
+         * Load API Routes (Stateless)
+         * ------------------------------------------
+         */
+        if (File::exists($routesPath . '/api.php')) {
             Route::middleware('api')
                 ->prefix('api')
-                ->group(function () use ($routesPath) {
-                    require "{$routesPath}/api.php";
-                });
+                ->group($routesPath . '/api.php');
         }
 
-        // Views
+        /**
+         * ------------------------------------------
+         * Load Views with Module Namespace
+         * ------------------------------------------
+         */
         if (File::exists($viewsPath)) {
-            View::addNamespace(strtolower($module), $viewsPath);
+            $moduleName = strtolower(basename($modulePath));
+            View::addNamespace($moduleName, $viewsPath);
         }
-
-        // Migrations
-        // Uncomment if needed
-        // if (File::exists($migrationsPath)) {
-        //     $this->loadMigrationsFrom($migrationsPath);
-        // }
     }
 }

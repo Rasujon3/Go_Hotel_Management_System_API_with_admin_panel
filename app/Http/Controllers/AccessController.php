@@ -14,9 +14,9 @@ class AccessController extends Controller
     {
     	try
         {
-        	$data = $request->all();
-		    	if(Auth::attempt(['username' => $data['username'], 'password' => $data['password']])){
-
+            $credentials = $request->only('email', 'password');
+            if (Auth::guard('web')->attempt($credentials)) {
+                $request->session()->regenerate();
 		    		$notification = array(
 		                     'message' => 'Successfully Logged In',
 		                     'alert-type' => 'success'
@@ -36,8 +36,7 @@ class AccessController extends Controller
             Log::error('Error in Login: ', [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'line' => $e->getLine()
             ]);
 
             $notification=array(
@@ -60,8 +59,7 @@ class AccessController extends Controller
             Log::error('Error in Logout: ', [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString()
+                'line' => $e->getLine()
             ]);
 
             $notification=array(

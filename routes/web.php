@@ -5,16 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\DashboardController;
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 Route::get('/', function () {
     return "Welcome to Go Hotel Management System API with admin panel...";
@@ -35,10 +25,15 @@ Route::get('/clear-cache', function () {
     Artisan::call('view:clear');
     Artisan::call('optimize:clear');
 
-    return 'All caches (config, route, view, optimize, application) have been cleared!';
+    return 'All caches (config, route, view & optimize application) have been cleared!';
 });
 
-Route::group(['middleware' => ['prevent-back-history', 'admin_auth']], function () {
-    // admin dashboard
+Route::middleware(['prevent-back-history', 'admin_auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'Dashboard']);
 });
+
+
+//Route::group(['middleware' => ['web', 'prevent-back-history', 'admin_auth']], function () {
+//    // admin dashboard
+//    Route::get('/dashboard', [DashboardController::class, 'Dashboard']);
+//});
