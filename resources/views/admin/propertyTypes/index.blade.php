@@ -7,12 +7,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">All Product</h1>
+                    <h1 class="m-0">All Property Type</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{URL::to('/dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">All Product</li>
+                        <li class="breadcrumb-item active">All Property Type</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -22,19 +22,18 @@
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">All Product</h3>
+                <h3 class="card-title">All Property Type</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                <a href="{{route('products.create')}}" class="btn btn-primary add-new mb-2">Add New Product</a>
+                <a href="{{ route('propertyTypes.create') }}" class="btn btn-primary add-new mb-2">Add New Property Type</a>
                 <div class="fetch-data table-responsive">
-                    <table id="product-table" class="table table-bordered table-striped data-table">
+                    <table id="table" class="table table-bordered table-striped data-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Price</th>
-                                <th>Description</th>
-                                <th>Commission</th>
+                                <th>Status</th>
+                                <th>Image</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -52,8 +51,8 @@
 
   <script>
   	$(document).ready(function(){
-  		let product_id;
-  		var productTable = $('#product-table').DataTable({
+  		let id;
+  		var productTable = $('#table').DataTable({
 		        searching: true,
 		        processing: true,
 		        serverSide: true,
@@ -61,40 +60,35 @@
 		        responsive: true,
 		        stateSave: true,
 		        ajax: {
-		          url: "{{url('/products')}}",
+		          url: "{{ url('/propertyTypes') }}",
 		        },
 
 		        columns: [
 		            {data: 'name', name: 'name'},
-                    {data: 'price', name: 'price'},
-		            {data: 'description', name: 'description'},
-		            {data: 'commission', name: 'commission'},
+		            {data: 'status', name: 'status'},
+                    {data: 'image_url', name: 'image_url'},
 		            {data: 'action', name: 'action', orderable: false, searchable: false},
 		        ]
         });
 
-       $(document).on('click', '.delete-product', function(e){
+       $(document).on('click', '.delete-data', function(e){
 
            e.preventDefault();
 
-           product_id = $(this).data('id');
+           id = $(this).data('id');
 
            if(confirm('Do you want to delete this?'))
            {
                $.ajax({
+                    url: "{{ url('/propertyTypes') }}/"+id,
+                     type:"DELETE",
+                     dataType:"json",
+                     success:function(data) {
 
-                    url: "{{url('/products')}}/"+product_id,
+                        toastr.success(data.message);
 
-                         type:"DELETE",
-                         dataType:"json",
-                         success:function(data) {
-
-                            toastr.success(data.message);
-
-                            $('.data-table').DataTable().ajax.reload(null, false);
-
+                        $('.data-table').DataTable().ajax.reload(null, false);
                     },
-
               });
            }
 

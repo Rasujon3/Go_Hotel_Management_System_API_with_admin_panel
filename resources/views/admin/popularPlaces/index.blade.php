@@ -7,12 +7,12 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">All Package</h1>
+                    <h1 class="m-0">All Popular Place</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{URL::to('/dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item active"><a href="{{URL::to('/packages')}}">All Package</a></li>
+                        <li class="breadcrumb-item active"><a href="{{URL::to('/popularPlaces')}}">All Popular Place</a></li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -22,18 +22,17 @@
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">All Package</h3>
+                <h3 class="card-title">All Popular Place</h3>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                <a href="{{ route('packages.create') }}" class="btn btn-primary add-new mb-2">Add New Package</a>
+                <a href="{{ route('popularPlaces.create') }}" class="btn btn-primary add-new mb-2">Add New Popular Place</a>
                 <div class="fetch-data table-responsive">
                     <table id="table" class="table table-bordered table-striped data-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Duration</th>
-                                <th>Price</th>
+                                <th>Image</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -61,7 +60,7 @@
                 ordering: false,
                 responsive: true,
                 ajax: {
-                    url: apiBaseUrl + 'api/v1/packages/list',
+                    url: apiBaseUrl + 'api/v1/popularPlaces/list',
                     type: "GET",
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -70,21 +69,28 @@
                         if(json.success) {
                             return json.data;
                         } else {
-                            toastr.error(json.message || 'Failed to load packages.');
+                            toastr.error(json.message || 'Failed to load popular Places.');
                             return [];
                         }
                     }
                 },
                 columns: [
                     {data: 'name'},
-                    {data: 'duration'},
-                    {data: 'price'},
+                    {
+                        data: 'image_url',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return '<img src="' + data + '" alt="package image" width="60" height="60" class="img-thumbnail">';
+                            }
+                            return '—';
+                        }
+                    },
                     {data: 'status'},
                     {
                         data: null,
                         render: function(data, type, row) {
                             let btns = '';
-                            btns += '<a href="/packages/' + row.id + '/edit" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a> ';
+                            btns += '<a href="/popularPlaces/' + row.id + '/edit" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a> ';
                             btns += '<button class="btn btn-danger btn-sm delete-data" data-id="'+row.id+'"><i class="fa fa-trash"></i></button>';
                             return btns;
                         }
@@ -99,7 +105,7 @@
 
                 if(confirm('Do you want to delete this data?')) {
                     $.ajax({
-                        url: apiBaseUrl + 'api/v1/packages/delete/' + id,
+                        url: apiBaseUrl + 'api/v1/popularPlaces/delete/' + id,
                         type: 'DELETE',
                         beforeSend: function(xhr) {
                             xhr.setRequestHeader("Authorization", "Bearer " + token);

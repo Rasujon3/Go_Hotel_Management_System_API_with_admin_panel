@@ -3,7 +3,7 @@
     <!-- Brand Logo -->
     <a href="{{URL::to('/dashboard')}}" class="brand-link">
         <img src="{{asset('back/dist/img/AdminLTELogo.png')}}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">Earning App</span>
+        <span class="brand-text font-weight-light">Hotel Management</span>
     </a>
 
     <!-- Sidebar -->
@@ -14,7 +14,7 @@
                 <img src="{{asset('back/dist/img/user2-160x160.jpg')}}" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
-                <a href="/" class="d-block">{{ Auth::user()->name ?? '' }}</a>
+                <a href="/dashboard" class="d-block">{{ Session::get('user')['full_name'] ?? '' }}</a>
             </div>
         </div>
 
@@ -35,155 +35,76 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Add icons to the links using the .nav-icon class
                      with font-awesome or any other icon font library -->
-                <li class="nav-item menu-open">
+                <li class="nav-item  {{ Request::is('dashboard') ? 'menu-open' : '' }}">
                     <a href="{{URL::to('/dashboard')}}" class="nav-link">
                         <i class="nav-icon fas fa-tachometer-alt"></i>
                         <p>
                             Dashboard
-
                         </p>
                     </a>
 
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item  {{ (
+                        Request::is('packages*') ||
+                        Request::is('popularPlaces*') ||
+                        Request::is('withdraws*') ||
+                        Request::is('propertyTypes*')
+                        )
+                        ? 'menu-open' : ''
+                        }}"
+                >
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-th"></i>
                         <p>
-                            Product
+                            Hotel
                             <i class="fas fa-angle-left right"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('products.create') }}" class="nav-link">
+                            <a href="{{ route('packages.index') }}" class="nav-link {{ request()->routeIs('packages.*') ? 'active_nav_menu' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Add Product</p>
+                                <p>Packages</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="{{ route('products.index') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>All Product</p>
-                            </a>
-                        </li>
-
                     </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Package
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('packages.create') }}" class="nav-link">
+                            <a href="{{ route('popularPlaces.index') }}" class="nav-link {{ request()->routeIs('popularPlaces.*') ? 'active_nav_menu' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Add Package</p>
+                                <p>Popular Place</p>
                             </a>
                         </li>
+                    </ul>
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('packages.index') }}" class="nav-link">
+                            <a href="{{ route('withdraws.index') }}" class="nav-link {{ request()->routeIs('withdraws.*') ? 'active_nav_menu' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>All Package</p>
+                                <p>Withdraw</p>
                             </a>
                         </li>
-
+                    </ul>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('propertyTypes.index') }}" class="nav-link {{ request()->routeIs('propertyTypes.*') ? 'active_nav_menu' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Property Types</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
+
+                <!--
                 <li class="nav-item">
-                    <a href="{{ route('settings') }}" class="nav-link">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon far fa-image"></i>
                         <p>
                             Settings
                         </p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Frozen Amount
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('frozen-amounts.create') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Add Frozen Amount</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('frozen-amounts.index') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>All Frozen Amount</p>
-                            </a>
-                        </li>
-
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Event
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('events.create') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Add Event</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('events.index') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>All Event</p>
-                            </a>
-                        </li>
-
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('levels.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-th"></i>
-                        <p>
-                            Level
-                            <i class="fas fa-angle-left right"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('levels.create') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Add Level</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('levels.index') }}" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>All Level</p>
-                            </a>
-                        </li>
-
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('about-us') }}" class="nav-link">
-                        <i class="nav-icon far fa-image"></i>
-                        <p>
-                            About Us
-                        </p>
-                    </a>
-                </li>
-
-                <li class="nav-header">EXAMPLES</li>
+                -->
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

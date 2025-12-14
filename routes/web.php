@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\PopularPlaceController;
+use App\Http\Controllers\PropertyTypeController;
+use App\Http\Controllers\WithdrawController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndexController;
@@ -29,7 +33,14 @@ Route::get('/clear-cache', function () {
 });
 
 Route::middleware(['prevent-back-history', 'admin_auth'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'Dashboard']);
+    Route::get('/dashboard', [DashboardController::class, 'Dashboard'])->name('dashboard');
+
+    Route::resource('packages', PackageController::class);
+    Route::resource('popularPlaces', PopularPlaceController::class);
+    Route::resource('withdraws', WithdrawController::class);
+
+    # web routes
+    Route::resource('propertyTypes', PropertyTypeController::class);
 });
 
 

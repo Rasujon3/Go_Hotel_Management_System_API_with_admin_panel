@@ -6,14 +6,14 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Edit Package</h1>
+                    <h1 class="m-0">Edit Popular Place</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{URL::to('/dashboard')}}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{URL::to('/packages')}}">All Package
+                        <li class="breadcrumb-item"><a href="{{URL::to('/packages')}}">All Popular Place
                                 </a></li>
-                        <li class="breadcrumb-item active">Edit Package</li>
+                        <li class="breadcrumb-item active">Edit Popular Place</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -24,52 +24,33 @@
     <section class="content">
         <div class="card card-primary">
             <div class="card-header">
-                <h3 class="card-title">Edit Package</h3>
+                <h3 class="card-title">Edit Popular Place</h3>
             </div>
 
             <form id="edit_form">
                 @csrf
-                @method('PUT')
                 <div class="card-body">
                     <div class="row">
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="name">Hotel Type <span class="required">*</span></label>
-                                <select name="name" id="name" class="form-control" required>
-                                    <option value="">--Select--</option>
-                                    <option value="3 Star Hotel">3 Star Hotel</option>
-                                    <option value="4 Star Hotel">4 Star Hotel</option>
-                                    <option value="5 Star Hotel">5 Star Hotel</option>
-                                </select>
+                                <label for="name">Name <span class="required">*</span></label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    class="form-control"
+                                    id="name"
+                                    placeholder="Name"
+                                    required
+                                >
                                 <span class="text-danger" id="name_error"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="duration">Duration</label>
-                                <select name="duration" id="duration" class="form-control" required>
-                                    <option value="">--Select--</option>
-                                    <option value="monthly">Monthly</option>
-{{--                                    <option value="yearly">Yearly</option>--}}
-                                </select>
-                                <span class="text-danger" id="duration_error"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="price">Price</label>
-                                <input type="number" name="price" class="form-control" id="price" required>
-                                <span class="text-danger" id="price_error"></span>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <select name="status" id="status" class="form-control">
+                                <label for="status">Status <span class="required">*</span></label>
+                                <select name="status" id="status" class="form-control" required>
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                 </select>
@@ -77,11 +58,26 @@
                             </div>
                         </div>
 
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="image">Image </label>
+                                <input
+                                    name="image"
+                                    type="file"
+                                    id="image"
+                                    accept="image/*"
+                                    class="dropify"
+                                    data-height="150"
+                                />
+                                <span class="text-danger" id="image_error"></span>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="form-group w-100 px-2">
                         <button type="submit" class="btn btn-primary">Update</button>
-                        <a href="{{ route('packages.index') }}" class="btn btn-secondary">Cancel</a>
+                        <a href="{{ route('popularPlaces.index') }}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </div>
             </form>
@@ -96,11 +92,11 @@
         $(document).ready(function() {
             let token = "{{ session('api_token') }}";   // store your token in session when login
             let apiBaseUrl = '{{ config("app.api_base_url") }}';
-            let packageId = "{{ request()->route('package') }}"; // from /packages/{id}/edit
+            let id = "{{ request()->route('popularPlace') }}"; // from /popularPlaces/{id}/edit
 
-            // 🔹 Fetch package data
+            // 🔹 Fetch data
             $.ajax({
-                url: apiBaseUrl + 'api/v1/packages/view/' + packageId,
+                url: apiBaseUrl + 'api/v1/popularPlaces/view/' + id,
                 type: 'GET',
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
@@ -109,14 +105,28 @@
                     if (resp.success) {
                         let data = resp.data;
                         $('#name').val(data.name);
-                        $('#duration').val(data.duration);
-                        $('#price').val(data.price);
                         $('#status').val(data.status);
+
+                        if (data.image_url) {
+                            // Destroy old dropify instance first
+                            let drEvent = $('#image').dropify();
+                            drEvent = drEvent.data('dropify');
+                            drEvent.resetPreview();
+                            drEvent.clearElement();
+
+                            // Set the default file
+                            $('#image').attr('data-default-file', data.image_url);
+
+                            // Re-init dropify to show the image
+                            drEvent.settings.defaultFile = data.image_url;
+                            drEvent.destroy();
+                            drEvent.init();
+                        }
                     }
                 },
                 error: function(xhr) {
-                    toastr.error('Something went wrong while fetching package data.');
-                    window.location.href = "{{ route('packages.index') }}";
+                    toastr.error('Something went wrong while fetching popular place data.');
+                    window.location.href = "{{ route('popularPlaces.index') }}";
                 }
             });
 
@@ -125,40 +135,41 @@
                 e.preventDefault();
 
                 // clear errors
-                $('#name_error, #duration_error, #price_error, #status_error').text('');
+                $('#name_error, #image_error, #status_error').text('');
 
                 let form = $(this);
                 let submitBtn = form.find('button[type="submit"]');
 
                 submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
 
-                let formData = {
-                    name: $('#name').val(),
-                    duration: $('#duration').val(),
-                    price: $('#price').val(),
-                    status: $('#status').val()
-                };
+                // let formData = {
+                //     name: $('#name').val(),
+                //     image: $('#image').val(),
+                //     status: $('#status').val()
+                // };
+
+                let formData = new FormData(this);
 
                 $.ajax({
-                    url: apiBaseUrl + 'api/v1/packages/update/' + packageId,
+                    url: apiBaseUrl + 'api/v1/popularPlaces/update/' + id,
                     type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
+                    data: formData,
+                    processData: false,  // required for file upload
+                    contentType: false,  // required for file upload
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("Authorization", "Bearer " + token);
                     },
                     success: function(resp) {
-                        toastr.success(resp.message || 'Package updated successfully');
+                        toastr.success(resp.message || 'Popular Place updated successfully');
                         setTimeout(() => {
-                            window.location.href = "{{ route('packages.index') }}";
+                            window.location.href = "{{ route('popularPlaces.index') }}";
                         }, 1500);
                     },
                     error: function(xhr) {
                         if (xhr.status === 422) {
                             let errors = xhr.responseJSON.errors;
                             if (errors.name) $('#name_error').text(errors.name[0]);
-                            if (errors.duration) $('#duration_error').text(errors.duration[0]);
-                            if (errors.price) $('#price_error').text(errors.price[0]);
+                            if (errors.image) $('#image').text(errors.image[0]);
                             if (errors.status) $('#status_error').text(errors.status[0]);
                         } else {
                             toastr.error(xhr.responseJSON?.message || 'Something went wrong');
