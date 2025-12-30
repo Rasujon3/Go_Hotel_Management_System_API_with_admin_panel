@@ -27,7 +27,7 @@
                 <h3 class="card-title">Add Popular Place</h3>
             </div>
 
-            <form id="form">
+            <form action="{{route('popularPlaces.store')}}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
                     <div class="row">
@@ -42,8 +42,11 @@
                                     id="name"
                                     placeholder="Name"
                                     required
+                                    value="{{ old('name') }}"
                                 >
-                                <span class="text-danger" id="name_error"></span>
+                                @error('name')
+                                    <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -54,7 +57,9 @@
                                     <option value="Active">Active</option>
                                     <option value="Inactive">Inactive</option>
                                 </select>
-                                <span class="text-danger" id="status_error"></span>
+                                @error('status')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -69,7 +74,9 @@
                                     class="dropify"
                                     data-height="150"
                                 />
-                                <span class="text-danger" id="image_error"></span>
+                                @error('image')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 

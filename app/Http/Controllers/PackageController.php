@@ -172,7 +172,7 @@ class PackageController extends Controller
                 'line' => $e->getLine()
             ]);
 
-            return response()->json(['status'=>true, 'message'=>'Something went wrong!!!']);
+            return response()->json(['status'=>false, 'message'=>'Something went wrong!!!']);
         }
     }
 }

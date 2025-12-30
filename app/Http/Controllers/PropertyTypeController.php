@@ -15,8 +15,7 @@ class PropertyTypeController extends Controller
 {
     public function index(Request $request)
     {
-        try
-        {
+        try {
             if($request->ajax()){
 
                 $products = PropertyType::select('*')->latest();
@@ -56,7 +55,7 @@ class PropertyTypeController extends Controller
             }
 
             return view('admin.propertyTypes.index');
-        }catch(Exception $e){
+        } catch(Exception $e) {
             return response()->json(['status'=>false, 'code'=>$e->getCode(), 'message'=>$e->getMessage()],500);
         }
     }

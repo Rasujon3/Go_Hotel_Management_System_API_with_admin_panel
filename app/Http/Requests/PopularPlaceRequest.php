@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Package;
+use App\Models\PopularPlace;
 use Illuminate\Foundation\Http\FormRequest;
 
-class PackageRequest extends FormRequest
+class PopularPlaceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class PackageRequest extends FormRequest
      */
     public function rules()
     {
-        $data = $this->route('package') ?: null;
-        return Package::rules($data?->id);
+        $data = $this->route('popularPlace') ?: null;
+        return PopularPlace::rules($data?->id);
     }
 }

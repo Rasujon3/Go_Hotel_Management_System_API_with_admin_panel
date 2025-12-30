@@ -50,80 +50,49 @@
 @push('scripts')
     <script>
         $(document).ready(function(){
-            let token = "{{ session('api_token') }}";
-            let apiBaseUrl = '{{ config("app.api_base_url") }}';
-
-            var packageTable = $('#table').DataTable({
+            let id;
+            var productTable = $('#table').DataTable({
                 searching: true,
                 processing: true,
-                serverSide: false,
+                serverSide: true,
                 ordering: false,
                 responsive: true,
+                stateSave: true,
                 ajax: {
-                    url: apiBaseUrl + 'api/v1/popularPlaces/list',
-                    type: "GET",
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", "Bearer " + token);
-                    },
-                    dataSrc: function (json) {
-                        if(json.success) {
-                            return json.data;
-                        } else {
-                            toastr.error(json.message || 'Failed to load popular Places.');
-                            return [];
-                        }
-                    }
+                    url: "{{ url('/popularPlaces') }}",
                 },
+
                 columns: [
-                    {data: 'name'},
-                    {
-                        data: 'image_url',
-                        render: function(data, type, row) {
-                            if (data) {
-                                return '<img src="' + data + '" alt="package image" width="60" height="60" class="img-thumbnail">';
-                            }
-                            return '—';
-                        }
-                    },
-                    {data: 'status'},
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            let btns = '';
-                            btns += '<a href="/popularPlaces/' + row.id + '/edit" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a> ';
-                            btns += '<button class="btn btn-danger btn-sm delete-data" data-id="'+row.id+'"><i class="fa fa-trash"></i></button>';
-                            return btns;
-                        }
-                    }
+                    {data: 'name', name: 'name'},
+                    {data: 'image_url', name: 'image_url'},
+                    {data: 'status', name: 'status'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
             });
 
-            // 🔥 delete handler
             $(document).on('click', '.delete-data', function(e){
-                e.preventDefault();
-                let id = $(this).data('id');
 
-                if(confirm('Do you want to delete this data?')) {
+                e.preventDefault();
+
+                id = $(this).data('id');
+
+                if(confirm('Do you want to delete this?'))
+                {
                     $.ajax({
-                        url: apiBaseUrl + 'api/v1/popularPlaces/delete/' + id,
-                        type: 'DELETE',
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", "Bearer " + token);
+                        url: "{{ url('/popularPlaces') }}/"+id,
+                        type:"DELETE",
+                        dataType:"json",
+                        success:function(data) {
+
+                            toastr.success(data.message);
+
+                            $('.data-table').DataTable().ajax.reload(null, false);
                         },
-                        success: function(resp) {
-                            if(resp.success) {
-                                toastr.success(resp.message);
-                                $('#table').DataTable().ajax.reload(null, false);
-                            } else {
-                                toastr.error(resp.message || 'Failed to delete');
-                            }
-                        },
-                        error: function(xhr) {
-                            toastr.error(xhr.responseJSON?.message || 'Something went wrong');
-                        }
                     });
                 }
+
             });
+
         });
     </script>
 @endpush

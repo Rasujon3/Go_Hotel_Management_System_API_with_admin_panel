@@ -35,11 +35,11 @@ Route::get('/clear-cache', function () {
 Route::middleware(['prevent-back-history', 'admin_auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'Dashboard'])->name('dashboard');
 
-    Route::resource('packages', PackageController::class);
     Route::resource('popularPlaces', PopularPlaceController::class);
     Route::resource('withdraws', WithdrawController::class);
 
     # web routes
+    Route::resource('packages', PackageController::class);
     Route::resource('propertyTypes', PropertyTypeController::class);
 });
 
