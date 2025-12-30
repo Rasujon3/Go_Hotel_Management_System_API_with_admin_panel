@@ -35,10 +35,10 @@ Route::get('/clear-cache', function () {
 Route::middleware(['prevent-back-history', 'admin_auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'Dashboard'])->name('dashboard');
 
-    Route::resource('popularPlaces', PopularPlaceController::class);
-    Route::resource('withdraws', WithdrawController::class);
-
     # web routes
+    Route::resource('withdraws', WithdrawController::class);
+    Route::get('/hotel/{id}/withdraw-info', [WithdrawController::class, 'getHotelWithdrawInfo']);
+    Route::resource('popularPlaces', PopularPlaceController::class);
     Route::resource('packages', PackageController::class);
     Route::resource('propertyTypes', PropertyTypeController::class);
 });

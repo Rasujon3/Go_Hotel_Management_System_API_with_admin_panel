@@ -52,74 +52,54 @@
 @push('scripts')
     <script>
         $(document).ready(function(){
-            let token = "{{ session('api_token') }}";
-            let apiBaseUrl = '{{ config("app.api_base_url") }}';
-
-            var packageTable = $('#table').DataTable({
+            let id;
+            var productTable = $('#table').DataTable({
                 searching: true,
                 processing: true,
-                serverSide: false,
+                serverSide: true,
                 ordering: false,
                 responsive: true,
+                stateSave: true,
                 ajax: {
-                    url: apiBaseUrl + 'api/v1/withdraws/list',
-                    type: "GET",
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("Authorization", "Bearer " + token);
-                    },
-                    dataSrc: function (json) {
-                        if(json.success) {
-                            return json.data;
-                        } else {
-                            toastr.error(json.message || 'Failed to load data.');
-                            return [];
-                        }
-                    }
+                    url: "{{ url('/withdraws') }}",
                 },
+
                 columns: [
-                    {data: 'title'},
-                    {data: 'hotel.hotel_name'},
-                    {data: 'payment_type'},
-                    {data: 'amount'},
-                    {data: 'withdraw_at'},
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            let btns = '';
-                            // btns += '<a href="/withdraws/' + row.id + '/edit" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i></a> ';
-                            btns += '<button class="btn btn-danger btn-sm delete-data" data-id="'+row.id+'"><i class="fa fa-trash"></i></button>';
-                            return btns;
-                        }
-                    }
+                    {data: 'title', name: 'title'},
+                    {data: 'hotel_name', name: 'hotel_name'},
+                    {data: 'payment_type', name: 'payment_type'},
+                    {data: 'amount', name: 'amount'},
+                    {data: 'withdraw_at', name: 'withdraw_at'},
+                    {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
             });
 
-            // 🔥 delete handler
             $(document).on('click', '.delete-data', function(e){
-                e.preventDefault();
-                let id = $(this).data('id');
 
-                if(confirm('Do you want to delete this data?')) {
+                e.preventDefault();
+
+                id = $(this).data('id');
+
+                if(confirm('Do you want to delete this?'))
+                {
                     $.ajax({
-                        url: apiBaseUrl + 'api/v1/withdraws/delete/' + id,
-                        type: 'DELETE',
-                        beforeSend: function(xhr) {
-                            xhr.setRequestHeader("Authorization", "Bearer " + token);
-                        },
-                        success: function(resp) {
-                            if(resp.success) {
-                                toastr.success(resp.message);
-                                $('#table').DataTable().ajax.reload(null, false);
+                        url: "{{ url('/withdraws') }}/"+id,
+                        type: "DELETE",
+                        dataType: "json",
+                        success:function(data) {
+                            if (data.status) {
+                                toastr.success(data.message);
+
+                                $('.data-table').DataTable().ajax.reload(null, false);
                             } else {
-                                toastr.error(resp.message || 'Failed to delete');
+                                toastr.error(data.message);
                             }
                         },
-                        error: function(xhr) {
-                            toastr.error(xhr.responseJSON?.message || 'Something went wrong');
-                        }
                     });
                 }
+
             });
+
         });
     </script>
 @endpush

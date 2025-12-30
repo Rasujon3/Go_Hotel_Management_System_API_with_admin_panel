@@ -26,7 +26,7 @@
                 <h3 class="card-title">Add Withdraw</h3>
             </div>
 
-            <form id="form">
+            <form action="{{ route('withdraws.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="card-body">
                     <div class="row">
@@ -34,10 +34,17 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="hotel_id">Select Hotel <span class="required">*</span></label>
-                                <select name="hotel_id" id="hotel_id" class="form-control" required>
-                                    <option value="">-- Select Hotel --</option>
+                                <select name="hotel_id" id="hotel_id" class="form-control select2bs4" required>
+                                    <option value="" selected="" disabled="">-- Select Hotel --</option>
+                                    @if(count($hotels) > 0)
+                                        @foreach ($hotels as $hotel)
+                                            <option value="{{ $hotel['id'] }}">{{ $hotel['hotel_name'] }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
-                                <span class="text-danger" id="hotel_id_error"></span>
+                                @error('hotel_id')
+                                    <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -52,7 +59,9 @@
                                     placeholder="Balance"
                                     readonly
                                 >
-                                <span class="text-danger" id="balance_error"></span>
+                                @error('balance')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -67,7 +76,9 @@
                                     placeholder="Acc. No"
                                     readonly
                                 >
-                                <span class="text-danger" id="acc_no_error"></span>
+                                @error('acc_no')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -82,7 +93,9 @@
                                     placeholder="Payment Method"
                                     readonly
                                 >
-                                <span class="text-danger" id="payment_method_error"></span>
+                                @error('payment_method')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -97,7 +110,9 @@
                                     placeholder="Title"
                                     required
                                 >
-                                <span class="text-danger" id="title_error"></span>
+                                @error('title')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -112,7 +127,9 @@
                                     placeholder="Payment Type. Ex: Cash Out, Bank Transfer"
                                     required
                                 >
-                                <span class="text-danger" id="title_error"></span>
+                                @error('payment_type')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -127,7 +144,9 @@
                                     placeholder="Amount"
                                     required
                                 >
-                                <span class="text-danger" id="amount_error"></span>
+                                @error('amount')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -141,7 +160,9 @@
                                     id="withdraw_at"
                                     required
                                 >
-                                <span class="text-danger" id="withdraw_at_error"></span>
+                                @error('withdraw_at')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -156,7 +177,9 @@
                                     placeholder="Transaction ID"
                                     required
                                 >
-                                <span class="text-danger" id="trx_id_error"></span>
+                                @error('trx_id')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -171,7 +194,9 @@
                                     placeholder="Reference"
                                     required
                                 >
-                                <span class="text-danger" id="reference_error"></span>
+                                @error('reference')
+                                <span class="alert alert-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
@@ -191,113 +216,31 @@
 
 @push('scripts')
 
-{{--    <script src="{{asset('custom/multiple_files.js')}}"></script>--}}
+<script src="{{asset('custom/multiple_files.js')}}"></script>
 
-    <script>
-      $(document).ready(function() {
-          let token = "{{ session('api_token') }}";
-          let apiBaseUrl = '{{ config("app.api_base_url") }}';
+<script>
+    $(document).ready(function () {
 
-          // 🔹 Fetch data
-          $.ajax({
-              url: apiBaseUrl + 'api/v1/admin/hotel-list',
-              type: 'GET',
-              beforeSend: function (xhr) {
-                  xhr.setRequestHeader("Authorization", "Bearer " + token);
-              },
-              success: function (resp) {
-                  if (resp.success && resp.data.length > 0) {
-                      let hotels = resp.data;
-                      let hotelSelect = $('#hotel_id');
+        $('#hotel_id').on('change', function () {
+            let hotelId = $(this).val();
 
-                      hotelSelect.empty().append('<option value="">-- Select Hotel --</option>');
+            if (!hotelId) return;
 
-                      hotels.forEach(hotel => {
-                          hotelSelect.append(
-                              `<option value="${hotel.id}"
-                            data-balance="${hotel.balance || 0}"
-                            data-payment="${hotel.withdraw_method?.payment_method || ''}"
-                            data-accno="${hotel.withdraw_method?.acc_no || ''}">
-                            ${hotel.hotel_name}
-                        </option>`
-                          );
-                      });
-                  } else {
-                      toastr.warning('No hotels found.');
-                  }
-              },
-              error: function (xhr) {
-                  toastr.error('Failed to load hotels.');
-              }
-          });
+            $.ajax({
+                url: `/hotel/${hotelId}/withdraw-info`,
+                type: 'GET',
+                success: function (response) {
+                    $('#balance').val(response.balance ?? '');
+                    $('#acc_no').val(response.acc_no ?? '');
+                    $('#payment_method').val(response.payment_method ?? '');
+                },
+                error: function () {
+                    alert('Unable to fetch hotel data');
+                }
+            });
+        });
 
-          // 🔹 When user selects a hotel
-          $('#hotel_id').on('change', function () {
-              let selectedOption = $(this).find(':selected');
-              let balance = selectedOption.data('balance') || '';
-              let paymentMethod = selectedOption.data('payment') || '';
-              let accNo = selectedOption.data('accno') || '';
-
-              $('#balance').val(balance);
-              $('#payment_method').val(paymentMethod);
-              $('#acc_no').val(accNo);
-          });
-
-          $('#form').on('submit', function(e) {
-              e.preventDefault();
-
-              // clear errors
-              $('#name_error, #image_error, #status_error').text('');
-
-              let form = $(this);
-              let submitBtn = form.find('button[type="submit"]');
-
-              submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Submitting...');
-
-              // let formData = {
-              //     name: $('#name').val(),
-              //     image: $('#image').val(),
-              //     status: $('#status').val()
-              // };
-
-              let formData = new FormData(this);
-
-              $.ajax({
-                  url: apiBaseUrl + 'api/v1/withdraws/create',
-                  type: 'POST',
-                  data: formData,
-                  processData: false,  // required for file upload
-                  contentType: false,  // required for file upload
-                  beforeSend: function(xhr) {
-                      xhr.setRequestHeader("Authorization", "Bearer " + token);
-                  },
-                  success: function(resp) {
-                      if(resp.success) {
-                          toastr.success(resp.message || 'Withdraw created successfully');
-                          setTimeout(() => {
-                              window.location.href = "{{ route('withdraws.index') }}";
-                          }, 1500);
-                      } else {
-                          toastr.error(resp.message || 'Something went wrong');
-                      }
-                  },
-                  error: function(xhr) {
-                      if(xhr.status === 422) {
-                          let errors = xhr.responseJSON.errors;
-                          if(errors.name) $('#name_error').text(errors.name[0]);
-                          if(errors.image) $('#image_error').text(errors.image[0]);
-                          if(errors.status) $('#status_error').text(errors.status[0]);
-                      } else {
-                          toastr.error(xhr.responseJSON?.message || 'Something went wrong');
-                      }
-                  },
-                  complete: function() {
-                      // always restore the button
-                      submitBtn.prop('disabled', false).html('Submit');
-                  }
-              });
-          });
-      });
-    </script>
+    });
+</script>
 
 @endpush
