@@ -1,21 +1,10 @@
 <?php
 
-namespace App\Modules\Hotels\Models;
+namespace App\Models;
 
-use App\Models\User;
-use App\Modules\Buildings\Models\Building;
-use App\Modules\Facilities\Models\Facility;
-use App\Modules\Floors\Models\Floor;
-use App\Modules\Packages\Models\Package;
-use App\Modules\PopularPlaces\Models\PopularPlace;
-use App\Modules\Ratings\Models\Rating;
-use App\Modules\Rooms\Models\Room;
-use App\Modules\WithdrawalMethods\Models\WithdrawalMethod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Hotel extends Model
 {
@@ -89,51 +78,8 @@ class Hotel extends Model
     {
         return $value ? number_format($value, 1) : null;
     }
-
-    public function user() : belongsTo
-    {
-        return $this->belongsTo(User::class,'user_id');
-    }
-    public function floor(): HasMany
-    {
-        return $this->hasMany(Floor::class);
-    }
-    public function rooms(): HasMany
-    {
-        return $this->hasMany(Room::class);
-    }
     public function package(): belongsTo
     {
         return $this->belongsTo(Package::class, 'package_id');
-    }
-    public function images(): HasMany
-    {
-        return $this->hasMany(HotelImg::class, 'hotel_id');
-    }
-    public function facilities(): HasMany
-    {
-        return $this->hasMany(Facility::class);
-    }
-    public function ratings(): HasMany
-    {
-        return $this->hasMany(Rating::class);
-    }
-    public function popularPlace(): belongsTo
-    {
-        return $this->belongsTo(PopularPlace::class, 'popular_place_id');
-    }
-    public function withdrawMethod(): hasOne
-    {
-        return $this->hasOne(WithdrawalMethod::class, 'hotel_id');
-    }
-
-    public function propertyType(): belongsTo
-    {
-        return $this->belongsTo(PropertyType::class, 'property_type_id');
-    }
-
-    public function buildings(): hasMany
-    {
-        return $this->hasMany(Building::class, 'hotel_id');
     }
 }
